@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Анкета персонажа</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;500;700&family=Almendra+Display&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#13171d;--panel:#1c222b;--line:#37414e;--ink:#e6dcc3;--mute:#9aa3ad;--acc:#6fb7a4;--acc2:#c9a85c;--err:#e07a6b;color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-x]){--bg:#13171d}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:18px/1.55 Alegreya,Georgia,serif;padding:24px 16px 64px}
+main{max-width:760px;margin:0 auto}
+h1{font:400 clamp(32px,6vw,48px)/1.1 'Almendra Display',Georgia,serif;color:var(--acc2);margin:0 0 6px}
+.lead{color:var(--mute);margin:0 0 28px}
+fieldset{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:20px 20px 8px;margin:0 0 22px}
+legend{font:400 24px 'Almendra Display',Georgia,serif;color:var(--acc2);padding:0 8px}
+label{display:block;margin:0 0 16px;font-weight:500}
+label small{color:var(--mute);font-weight:400}
+input[type=text],input[type=number],select,textarea{width:100%;margin-top:6px;padding:10px 12px;background:#0f1318;color:var(--ink);border:1px solid var(--line);border-radius:4px;font:inherit}
+textarea{min-height:96px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+.classes{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.classes label,.kits label{margin:0;cursor:pointer}
+.classes input,.kits input{position:absolute;opacity:0}
+.classes span{display:block;text-align:center;padding:12px 8px;border:1px solid var(--line);border-radius:4px;background:#0f1318}
+.classes b{display:block;font-weight:700}.classes em{font-style:normal;color:var(--mute);font-size:15px}
+.classes input:checked+span,.kits input:checked+span{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc);background:#16241f}
+.classes input:focus-visible+span,.kits input:focus-visible+span{outline:2px solid var(--acc)}
+.kits{display:grid;gap:10px;margin-bottom:16px}
+.kits span{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:4px;background:#0f1318}
+.kits b{color:var(--acc2)}
+.hint{color:var(--mute);margin:-6px 0 14px}
+.actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+button{font:700 18px Alegreya,Georgia,serif;padding:12px 26px;border-radius:4px;border:1px solid var(--acc);background:var(--acc);color:#0b1210;cursor:pointer}
+button.alt{background:transparent;color:var(--ink);border-color:var(--line)}
+button:disabled{opacity:.5;cursor:wait}
+#status{margin-top:16px;padding:12px 14px;border-radius:4px;display:none;white-space:pre-wrap}
+#status.ok{display:block;border:1px solid var(--acc);background:#16241f}
+#status.bad{display:block;border:1px solid var(--err);background:#2a1a18}
+.req{color:var(--err)}
+.hidden{display:none}
+input[type=file]{width:100%;margin-top:6px;padding:8px;background:#0f1318;color:var(--mute);border:1px dashed var(--line);border-radius:4px;font:inherit;font-size:16px}
+input[type=file]::file-selector-button{font:700 16px Alegreya,Georgia,serif;margin-right:12px;padding:6px 14px;border-radius:4px;border:1px solid var(--acc);background:var(--acc);color:#0b1210;cursor:pointer}
+#pv{display:block;max-width:240px;max-height:300px;margin:-6px 0 16px;border:1px solid var(--line);border-radius:4px;object-fit:cover}
+@media(min-width:700px){.kits{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<main>
+<h1>Анкета персонажа</h1>
+<p class="lead">Заполните все поля, отмеченные звёздочкой, и нажмите «Отправить анкету». Она сразу уйдёт администратору.</p>
+
+<form id="f" novalidate>
+<fieldset>
+<legend>Игрок</legend>
+<div class="row">
+<label>Ваш ник / имя <span class="req">*</span><input type="text" name="player" required></label>
+<label>Discord юзер <span class="req">*</span><input type="text" name="contact" required placeholder="например: username"></label>
+</div>
+</fieldset>
+
+<fieldset>
+<legend>Персонаж</legend>
+<div class="row">
+<label>Имя персонажа <span class="req">*</span><input type="text" name="name" required></label>
+<label>Раса <span class="req">*</span><input type="text" name="race" required></label>
+<label>Пол<input type="text" name="gender"></label>
+<label>Возраст<input type="text" name="age"></label>
+</div>
+<label>Фотография / арт персонажа <small>(необязательно, jpg, png или webp)</small>
+<input type="file" id="photo" name="photo" accept="image/*"></label>
+<img id="pv" class="hidden" alt="Предпросмотр фото персонажа">
+<label>Внешность<textarea name="look" placeholder="Рост, телосложение, волосы, шрамы, одежда…"></textarea></label>
+<label>Характер<textarea name="character"></textarea></label>
+<label>Предыстория <span class="req">*</span><textarea name="story" required placeholder="Откуда персонаж, чем жил до начала игры"></textarea></label>
+<label>Цель и мотивация<textarea name="goal"></textarea></label>
+<div class="row">
+<label>Сильные стороны<textarea name="pros"></textarea></label>
+<label>Слабости и страхи<textarea name="cons"></textarea></label>
+</div>
+</fieldset>
+
+<fieldset>
+<legend>Класс</legend>
+<label>Какой класс вы хотите? <span class="req">*</span><input type="text" name="clsName" required placeholder="Например: маг, вор, бард, охотник на нечисть…"></label>
+<label>Описание класса <span class="req">*</span><small> (чем занимается, как сражается, какие умения и стартовое снаряжение хотите)</small>
+<textarea name="clsDesc" required style="min-height:160px"></textarea></label>
+</fieldset>
+
+<div class="actions">
+<button type="submit" id="send">Отправить анкету</button>
+<button type="button" class="alt" id="copy">Скопировать текст</button>
+</div>
+<div id="status" role="status"></div>
+</form>
+</main>
+
+<script>
+/* ===== НАСТРОЙКИ АДМИНА ===== */
+const CONFIG = {
+  // Вариант 1 (проще всего): вебхук Discord-канала. Вставьте ссылку вида https://discord.com/api/webhooks/...
+  DISCORD_WEBHOOK: "https://discord.com/api/webhooks/1562413252263280712/2atD4yM1cm1bPC_O3iZFdc7AoiLjjmZoPczAdtOh74l_r3PK5TiciRrwAlYe2ag6dwP8",
+  // Вариант 2: адрес формы Formspree / Getform и т.п. (например https://formspree.io/f/xxxxxxx)
+  FORM_ENDPOINT: "",
+  // Запасной вариант: если выше ничего не задано, откроется письмо на этот адрес
+  ADMIN_EMAIL: ""
+};
+
+
+const $ = s => document.querySelector(s);
+const f = $("#f"), st = $("#status");
+let photo = null;
+
+$("#photo").addEventListener("change", async e => {
+  const file = e.target.files[0]; photo = null; $("#pv").classList.add("hidden");
+  if (!file) return;
+  if (!file.type.startsWith("image/")) { show("Выберите файл-картинку (jpg, png, webp).", false); e.target.value = ""; return; }
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); });
+    const k = Math.min(1, 1280 / Math.max(img.width, img.height));
+    const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+    photo = await new Promise(r => c.toBlob(r, "image/jpeg", .85));
+    $("#pv").src = URL.createObjectURL(photo); $("#pv").classList.remove("hidden");
+  } catch { show("Не удалось прочитать картинку, попробуйте другую.", false); e.target.value = ""; }
+});
+
+function val(n){ return (f.elements[n]?.value || "").trim(); }
+
+function validate(){
+  const miss = [];
+  [["player","Ник игрока"],["contact","Discord юзер"],["name","Имя персонажа"],["race","Раса"],["story","Предыстория"]]
+    .forEach(([n,l]) => { if(!val(n)) miss.push(l); });
+  if(!val("clsName")) miss.push("Класс");
+  if(!val("clsDesc")) miss.push("Описание класса");
+  return miss;
+}
+
+function build(){
+  const L = [];
+  const add = (t,v) => L.push(`**${t}:** ${v || "—"}`);
+  L.push("📜 **НОВАЯ АНКЕТА ПЕРСОНАЖА**", "");
+  add("Игрок", val("player")); add("Discord", val("contact")); L.push("");
+  add("Имя", val("name")); add("Раса", val("race")); add("Пол", val("gender")); add("Возраст", val("age"));
+  add("Внешность", val("look")); add("Характер", val("character")); add("Предыстория", val("story"));
+  add("Цель", val("goal")); add("Сильные стороны", val("pros")); add("Слабости", val("cons")); L.push("");
+  add("Класс", val("clsName")); add("Описание класса", val("clsDesc"));
+  return L.join("\n");
+}
+
+function chunks(t, n=1900){
+  const out=[]; let cur="";
+  t.split("\n").forEach(l=>{ if((cur+"\n"+l).length>n){out.push(cur);cur=l}else cur+=(cur?"\n":"")+l });
+  if(cur) out.push(cur); return out;
+}
+
+function show(msg, ok){ st.className = ok ? "ok" : "bad"; st.textContent = msg; st.scrollIntoView({block:"nearest"}); }
+
+async function copyText(t){
+  try { await navigator.clipboard.writeText(t.replace(/\*\*/g,"")); return true; } catch { return false; }
+}
+
+$("#copy").onclick = async () => {
+  const m = validate();
+  if (m.length) return show("Заполните: " + m.join(", "), false);
+  show((await copyText(build())) ? "Текст анкеты скопирован." : "Не удалось скопировать — выделите текст вручную.", true);
+};
+
+f.addEventListener("submit", async e => {
+  e.preventDefault();
+  const m = validate();
+  if (m.length) return show("Заполните: " + m.join(", "), false);
+  const text = build(), btn = $("#send");
+  btn.disabled = true; btn.textContent = "Отправка…";
+  try {
+    if (CONFIG.DISCORD_WEBHOOK) {
+      const parts = chunks(text);
+      for (let i = 0; i < parts.length; i++) {
+        let opts;
+        if (i === 0 && photo) {
+          const fd = new FormData();
+          fd.append("payload_json", JSON.stringify({content: parts[0]}));
+          fd.append("files[0]", photo, "character.jpg");
+          opts = {method:"POST", body:fd};
+        } else {
+          opts = {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({content:parts[i]})};
+        }
+        const r = await fetch(CONFIG.DISCORD_WEBHOOK, opts);
+        if (!r.ok) throw new Error("Discord: " + r.status);
+      }
+    } else if (CONFIG.FORM_ENDPOINT) {
+      const r = await fetch(CONFIG.FORM_ENDPOINT, {method:"POST", headers:{"Content-Type":"application/json","Accept":"application/json"},
+        body:JSON.stringify({player:val("player"), contact:val("contact"), character:val("name"), message:text.replace(/\*\*/g,"")})});
+      if (!r.ok) throw new Error("Сервер ответил " + r.status);
+    } else if (CONFIG.ADMIN_EMAIL) {
+      const body = encodeURIComponent(text.replace(/\*\*/g,""));
+      location.href = `mailto:${CONFIG.ADMIN_EMAIL}?subject=${encodeURIComponent("Анкета: " + val("name"))}&body=${body}`;
+      show("Открылось письмо администратору — нажмите «Отправить» в почтовой программе.", true);
+      return;
+    } else {
+      throw new Error("Отправка не настроена администратором.");
+    }
+    show("Анкета отправлена администратору. Спасибо!", true);
+    f.reset(); photo = null; $("#pv").classList.add("hidden");
+  } catch (err) {
+    const ok = await copyText(text);
+    show("Не удалось отправить (" + err.message + ").\n" + (photo ? "Фото придётся отправить администратору отдельно.\n" : "") + (ok ? "Текст анкеты скопирован — перешлите его администратору лично." : "Нажмите «Скопировать текст» и перешлите администратору."), false);
+  } finally { btn.disabled = false; btn.textContent = "Отправить анкету"; }
+});
+</script>
+</body>
+</html>
